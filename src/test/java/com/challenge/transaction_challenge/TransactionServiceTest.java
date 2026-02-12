@@ -16,24 +16,46 @@ class TransactionServiceTest {
 
 	private TransactionRepository repository;
 	private TransactionService transactionService;
+	private Transaction parentTransaction, transaction;
 
 	@BeforeEach
 	void setUp() {
 		repository = new InMemoryTransactionRepository();
 		transactionService = new TransactionServiceImpl(repository);
+		parentTransaction = new Transaction(1L, "cars", 1.5, null);
+		transaction = new Transaction(2L, "cars", 3.5, 1L);
 	}
 
 	@Test
 	void testCreateTransaction(){
-		Transaction transaction = new Transaction(1L, "cars", 1.5, null);
 
-		transactionService.createTransaction(transaction);
+		transactionService.createTransaction(parentTransaction);
 
 		Optional<Transaction> savedTransaction = repository.findById(1L);
 
 		assertThat(savedTransaction)
 				.isPresent()
-				.contains(transaction);
+				.contains(parentTransaction);
+	}
+
+	@Test
+	void testCreateTransactionWithParent(){
+
+		transactionService.createTransaction(parentTransaction);
+		transactionService.createTransaction(transaction);
+
+		Optional<Transaction> savedTransaction = repository.findById(2L);
+
+		assertThat(savedTransaction)
+				.isPresent()
+				.contains(transaction)
+				.get()
+				.extracting(Transaction::getParentId)
+				.isEqualTo(1L);
+
+		Optional<Transaction> savedParent = repository.findById(1L);
+		assertThat(savedParent).isPresent().contains(parentTransaction);
+
 	}
 
 }
