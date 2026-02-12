@@ -6,6 +6,9 @@ import com.challenge.transaction_challenge.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -15,5 +18,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void createTransaction(Transaction transaction) {
         transactionRepository.create(transaction);
+    }
+
+    @Override
+    public List<Long> findByType(String type) {
+        return transactionRepository.findByType(type)
+                .stream().map(Transaction::getTransactionId)
+                .collect(Collectors.toList());
     }
 }
