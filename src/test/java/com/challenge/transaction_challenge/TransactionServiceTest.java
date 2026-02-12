@@ -76,4 +76,33 @@ class TransactionServiceTest {
 				.doesNotContain(1L, 2L, 10L);
 	}
 
+	@Test
+	void testFindByType_2Cars(){
+		transactionService.createTransaction(parentCarTransaction);
+		transactionService.createTransaction(carTransaction);
+		transactionService.createTransaction(shoppingTransaction);
+		transactionService.createTransaction(foodTransaction);
+
+		List<Long> carsTransactions = transactionService.findByType("cars");
+
+		assertThat(carsTransactions)
+				.hasSize(2)
+				.containsExactlyInAnyOrder(1L, 2L)
+				.doesNotContain(10L, 20L);
+	}
+
+	@Test
+	void testFindByType_emptyResult(){
+		transactionService.createTransaction(parentCarTransaction);
+		transactionService.createTransaction(carTransaction);
+		transactionService.createTransaction(shoppingTransaction);
+		transactionService.createTransaction(foodTransaction);
+
+		List<Long> travelTransactions = transactionService.findByType("travel");
+
+		assertThat(travelTransactions)
+				.hasSize(0)
+				.doesNotContain(1L, 2L, 10L, 20L);
+	}
+
 }
