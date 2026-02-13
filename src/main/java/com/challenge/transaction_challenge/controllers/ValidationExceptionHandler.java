@@ -18,5 +18,10 @@ public class ValidationExceptionHandler {
                 .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
         return ResponseEntity.badRequest().body(errors);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentExceptions(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(Map.of("status", "error: " + ex.getLocalizedMessage()));
+    }
 }
 

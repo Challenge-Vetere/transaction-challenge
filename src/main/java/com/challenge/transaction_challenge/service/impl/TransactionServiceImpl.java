@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void createByTransactionRequest(Long id, TransactionRequest request) {
+        validateExistingParent(request.getParentId());
         createTransaction(
                 new Transaction(
                         id,
@@ -29,6 +31,11 @@ public class TransactionServiceImpl implements TransactionService {
         );
     }
 
+    private void validateExistingParent(Long parentId){
+        if (!Objects.isNull(parentId) && transactionRepository.findById(parentId).isEmpty()) {
+            throw new IllegalArgumentException("Parent transaction not found");
+        }
+    }
     @Override
     public void createTransaction(Transaction transaction) {
         transactionRepository.create(transaction);
