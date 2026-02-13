@@ -7,12 +7,14 @@ import com.challenge.transaction_challenge.model.TransactionRequest;
 import com.challenge.transaction_challenge.repository.TransactionRepository;
 import com.challenge.transaction_challenge.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -21,6 +23,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void createByTransactionRequest(Long id, TransactionRequest request) {
+        log.info("Creating transaction with id {}", id);
         validateExistingParent(request.getParentId());
         createTransaction(
                 new Transaction(
@@ -34,6 +37,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void validateExistingParent(Long parentId){
         if (!Objects.isNull(parentId) && transactionRepository.findById(parentId).isEmpty()) {
+            log.error("Parent transaction not found. parentId={}", parentId);
             throw new ParentNotFoundException(parentId);
         }
     }
@@ -44,6 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public List<Long> findByType(String type) {
+        log.info("Retrieving transactions by type {}", type);
         return transactionRepository.findByType(type)
                 .stream().map(Transaction::getTransactionId)
                 .collect(Collectors.toList());
@@ -51,9 +56,13 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Double sum(Long transactionId) {
+        log.info("Calculating sum for transactionId {}", transactionId);
 
         Transaction parentTransaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
+                .orElseThrow(() -> {
+                    log.error("Transaction not found for id {}", transactionId);
+                    throw new TransactionNotFoundException(transactionId);
+                });
 
         Double parentAmount = parentTransaction.getAmount();
         Double childrenSum = transactionRepository.findByParentId(transactionId)
