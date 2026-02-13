@@ -25,7 +25,7 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     @Override
     public List<Transaction> findByType(String type) {
         return savedTransactions.values()
-                .stream().filter(tx -> tx.getType().equals(type))
+                .stream().filter(tx -> Objects.equals(tx.getType(), type))
                 .collect(Collectors.toList());
     }
 
