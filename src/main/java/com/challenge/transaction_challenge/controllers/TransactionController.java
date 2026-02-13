@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,6 +20,11 @@ public class TransactionController {
     public ResponseEntity<Map<String,String>> create(@PathVariable Long transactionId, @RequestBody TransactionRequest request){
         transactionService.createByTransactionRequest(transactionId, request);
         return ResponseEntity.ok(Map.of("status", "ok"));
+    }
+
+    @GetMapping("/types/{type}")
+    public List<Long> getByType(@PathVariable String type){
+        return transactionService.findByType(type);
     }
 
 }

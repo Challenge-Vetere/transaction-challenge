@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,4 +37,39 @@ public class TransactionControllerTest {
         assertThat(response.getBody()).containsEntry("status", "ok");
     }
 
+    @Test
+    void testGetTransactionsByType() {
+        restTemplate.exchange("/transactions/10", HttpMethod.PUT,
+                new HttpEntity<>(new TransactionRequest("food", 10.0, null)),
+                new ParameterizedTypeReference<>() {});
+        restTemplate.exchange("/transactions/11", HttpMethod.PUT,
+                new HttpEntity<>(new TransactionRequest("food", 20.0, null)),
+                new ParameterizedTypeReference<>() {});
+        restTemplate.exchange("/transactions/20", HttpMethod.PUT,
+                new HttpEntity<>(new TransactionRequest("cars", 30.0, null)),
+                new ParameterizedTypeReference<>() {});
+
+        ResponseEntity<List<Long>> response = restTemplate.exchange("/transactions/types/food",
+                HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {});
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).containsExactlyInAnyOrder(10L, 11L);
+    }
+
+    @Test
+    void testGetTransactionsByType_NonexistentType() {
+        restTemplate.exchange("/transactions/10", HttpMethod.PUT,
+                new HttpEntity<>(new TransactionRequest("food", 10.0, null)),
+                new ParameterizedTypeReference<>() {});
+        restTemplate.exchange("/transactions/20", HttpMethod.PUT,
+                new HttpEntity<>(new TransactionRequest("cars", 30.0, null)),
+                new ParameterizedTypeReference<>() {});
+
+        ResponseEntity<List<Long>> emptyResponse = restTemplate.exchange("/transactions/types/travel",
+                HttpMethod.GET, null,
+                new ParameterizedTypeReference<>() {});
+
+        assertThat(emptyResponse.getBody()).isEmpty();
+    }
 }
