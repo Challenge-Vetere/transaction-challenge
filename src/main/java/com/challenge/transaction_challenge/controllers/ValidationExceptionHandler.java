@@ -1,6 +1,8 @@
 package com.challenge.transaction_challenge.controllers;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -22,6 +24,26 @@ public class ValidationExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgumentExceptions(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(Map.of("status", "error: " + ex.getLocalizedMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleInvalidFormat(HttpMessageNotReadableException ex) {
+
+        String message = "Request contains invalid data";
+
+        if (ex.getCause() instanceof InvalidFormatException) {
+            InvalidFormatException invalidFormat = (InvalidFormatException) ex.getCause();
+            String field = invalidFormat.getPath().get(0).getFieldName();
+            Object value = invalidFormat.getValue();
+            String targetType = invalidFormat.getTargetType().getSimpleName();
+
+            message = String.format(
+                    "error: field '%s' has invalid value '%s'. Expected type: %s",
+                    field, value, targetType
+            );
+        }
+
+        return ResponseEntity.badRequest().body(Map.of("status", message));
     }
 }
 
