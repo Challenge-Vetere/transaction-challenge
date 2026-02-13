@@ -27,4 +27,10 @@ public class TransactionController {
         return transactionService.findByType(type);
     }
 
+    @GetMapping("/sum/{transactionId}")
+    public Map<String,Double> getSum(@PathVariable Long transactionId){
+        Double sum = transactionService.sum(transactionId);
+        return Map.of("sum", sum);
+    }
+
 }
