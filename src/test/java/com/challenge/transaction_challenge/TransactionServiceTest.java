@@ -138,4 +138,11 @@ class TransactionServiceTest {
 		assertThat(sumTransactionAmount).isEqualTo(10.0);
 	}
 
+	@Test
+	void testSum_NonexistentTransaction(){
+		Double sumTransactionAmount = transactionService.sum(100L);
+
+		assertThat(sumTransactionAmount).isEqualTo(0.0);
+	}
+
 }
