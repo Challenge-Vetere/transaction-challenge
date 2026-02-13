@@ -1,6 +1,7 @@
 package com.challenge.transaction_challenge.service.impl;
 
 import com.challenge.transaction_challenge.model.Transaction;
+import com.challenge.transaction_challenge.model.TransactionRequest;
 import com.challenge.transaction_challenge.repository.TransactionRepository;
 import com.challenge.transaction_challenge.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,18 @@ import java.util.stream.Collectors;
 public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
+
+    @Override
+    public void createByTransactionRequest(Long id, TransactionRequest request) {
+        createTransaction(
+                new Transaction(
+                        id,
+                        request.getType(),
+                        request.getAmount(),
+                        request.getParentId()
+                )
+        );
+    }
 
     @Override
     public void createTransaction(Transaction transaction) {
