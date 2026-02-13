@@ -1,5 +1,7 @@
 package com.challenge.transaction_challenge.service.impl;
 
+import com.challenge.transaction_challenge.exception.ParentNotFoundException;
+import com.challenge.transaction_challenge.exception.TransactionNotFoundException;
 import com.challenge.transaction_challenge.model.Transaction;
 import com.challenge.transaction_challenge.model.TransactionRequest;
 import com.challenge.transaction_challenge.repository.TransactionRepository;
@@ -9,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private void validateExistingParent(Long parentId){
         if (!Objects.isNull(parentId) && transactionRepository.findById(parentId).isEmpty()) {
-            throw new IllegalArgumentException("Parent transaction not found");
+            throw new ParentNotFoundException(parentId);
         }
     }
     @Override
@@ -50,10 +51,11 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Double sum(Long transactionId) {
-        Optional<Transaction> parentTransaction = transactionRepository.findById(transactionId);
-        if(parentTransaction.isEmpty()) return 0.0;
 
-        Double parentAmount = parentTransaction.get().getAmount();
+        Transaction parentTransaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new TransactionNotFoundException(transactionId));
+
+        Double parentAmount = parentTransaction.getAmount();
         Double childrenSum = transactionRepository.findByParentId(transactionId)
                 .stream().mapToDouble(childTx -> sum(childTx.getTransactionId()))
                 .sum();

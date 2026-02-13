@@ -1,5 +1,7 @@
 package com.challenge.transaction_challenge.controllers;
 
+import com.challenge.transaction_challenge.exception.ParentNotFoundException;
+import com.challenge.transaction_challenge.exception.TransactionNotFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,8 +23,8 @@ public class ValidationExceptionHandler {
         return ResponseEntity.badRequest().body(errors);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentExceptions(IllegalArgumentException ex) {
+    @ExceptionHandler({TransactionNotFoundException.class, ParentNotFoundException.class})
+    public ResponseEntity<?> handleIllegalArgumentExceptions(RuntimeException ex) {
         return ResponseEntity.badRequest().body(Map.of("status", "error: " + ex.getLocalizedMessage()));
     }
 

@@ -1,5 +1,6 @@
 package com.challenge.transaction_challenge;
 
+import com.challenge.transaction_challenge.exception.TransactionNotFoundException;
 import com.challenge.transaction_challenge.model.Transaction;
 import com.challenge.transaction_challenge.repository.TransactionRepository;
 import com.challenge.transaction_challenge.repository.impl.InMemoryTransactionRepository;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TransactionServiceTest {
 
@@ -140,9 +143,12 @@ class TransactionServiceTest {
 
 	@Test
 	void testSum_NonexistentTransaction(){
-		Double sumTransactionAmount = transactionService.sum(100L);
+		TransactionNotFoundException exception = assertThrows(
+				TransactionNotFoundException.class,
+				() -> transactionService.sum(100L)
+		);
 
-		assertThat(sumTransactionAmount).isEqualTo(0.0);
+		assertEquals("Transaction not found with id 100", exception.getMessage());
 	}
 
 }
