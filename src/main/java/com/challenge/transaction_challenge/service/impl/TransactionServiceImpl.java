@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -25,5 +26,11 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findByType(type)
                 .stream().map(Transaction::getTransactionId)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Double sum(Long transactionId) {
+        Optional<Transaction> transaction = transactionRepository.findById(transactionId);
+        return transaction.map(Transaction::getAmount).orElse(0.0);
     }
 }

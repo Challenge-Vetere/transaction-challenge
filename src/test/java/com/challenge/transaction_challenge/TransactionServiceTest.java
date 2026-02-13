@@ -17,14 +17,14 @@ class TransactionServiceTest {
 
 	private TransactionRepository repository;
 	private TransactionService transactionService;
-	private Transaction parentCarTransaction, carTransaction, shoppingTransaction, foodTransaction;
+	private Transaction parentCarTransaction1, carTransaction2, shoppingTransaction, foodTransaction;
 
 	@BeforeEach
 	void setUp() {
 		repository = new InMemoryTransactionRepository();
 		transactionService = new TransactionServiceImpl(repository);
-		parentCarTransaction = new Transaction(1L, "cars", 1.5, null);
-		carTransaction = new Transaction(2L, "cars", 3.5, 1L);
+		parentCarTransaction1 = new Transaction(1L, "cars", 1.5, null);
+		carTransaction2 = new Transaction(2L, "cars", 3.5, 1L);
 		shoppingTransaction = new Transaction(10L, "shopping", 5.8, null);
 		foodTransaction = new Transaction(20L, "food", 10.2, null);
 	}
@@ -32,39 +32,39 @@ class TransactionServiceTest {
 	@Test
 	void testCreateTransaction(){
 
-		transactionService.createTransaction(parentCarTransaction);
+		transactionService.createTransaction(parentCarTransaction1);
 
 		Optional<Transaction> savedTransaction = repository.findById(1L);
 
 		assertThat(savedTransaction)
 				.isPresent()
-				.contains(parentCarTransaction);
+				.contains(parentCarTransaction1);
 	}
 
 	@Test
 	void testCreateTransaction_WithParent(){
 
-		transactionService.createTransaction(parentCarTransaction);
-		transactionService.createTransaction(carTransaction);
+		transactionService.createTransaction(parentCarTransaction1);
+		transactionService.createTransaction(carTransaction2);
 
 		Optional<Transaction> savedTransaction = repository.findById(2L);
 
 		assertThat(savedTransaction)
 				.isPresent()
-				.contains(carTransaction)
+				.contains(carTransaction2)
 				.get()
 				.extracting(Transaction::getParentId)
 				.isEqualTo(1L);
 
 		Optional<Transaction> savedParent = repository.findById(1L);
-		assertThat(savedParent).isPresent().contains(parentCarTransaction);
+		assertThat(savedParent).isPresent().contains(parentCarTransaction1);
 
 	}
 
 	@Test
 	void testFindByType_OnlyOneFoodType(){
-		transactionService.createTransaction(parentCarTransaction);
-		transactionService.createTransaction(carTransaction);
+		transactionService.createTransaction(parentCarTransaction1);
+		transactionService.createTransaction(carTransaction2);
 		transactionService.createTransaction(shoppingTransaction);
 		transactionService.createTransaction(foodTransaction);
 
@@ -78,8 +78,8 @@ class TransactionServiceTest {
 
 	@Test
 	void testFindByType_2Cars(){
-		transactionService.createTransaction(parentCarTransaction);
-		transactionService.createTransaction(carTransaction);
+		transactionService.createTransaction(parentCarTransaction1);
+		transactionService.createTransaction(carTransaction2);
 		transactionService.createTransaction(shoppingTransaction);
 		transactionService.createTransaction(foodTransaction);
 
@@ -93,8 +93,8 @@ class TransactionServiceTest {
 
 	@Test
 	void testFindByType_emptyResult(){
-		transactionService.createTransaction(parentCarTransaction);
-		transactionService.createTransaction(carTransaction);
+		transactionService.createTransaction(parentCarTransaction1);
+		transactionService.createTransaction(carTransaction2);
 		transactionService.createTransaction(shoppingTransaction);
 		transactionService.createTransaction(foodTransaction);
 
@@ -103,6 +103,15 @@ class TransactionServiceTest {
 		assertThat(travelTransactions)
 				.hasSize(0)
 				.doesNotContain(1L, 2L, 10L, 20L);
+	}
+
+	@Test
+	void testSum_SingleTransaction(){
+		transactionService.createTransaction(parentCarTransaction1);
+
+		Double sumTransactionAmount = transactionService.sum(1L);
+
+		assertThat(sumTransactionAmount).isEqualTo(1.5);
 	}
 
 }

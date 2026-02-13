@@ -7,4 +7,5 @@ import java.util.List;
 public interface TransactionService {
     void createTransaction(Transaction transaction);
     List<Long> findByType(String type);
+    Double sum(Long transactionId);
 }
