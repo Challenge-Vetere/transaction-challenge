@@ -17,7 +17,9 @@ class TransactionServiceTest {
 
 	private TransactionRepository repository;
 	private TransactionService transactionService;
-	private Transaction parentCarTransaction1, carTransaction2, shoppingTransaction, foodTransaction;
+	private Transaction parentCarTransaction1, carTransaction2,
+			shoppingTransaction,
+			foodTransaction;
 
 	@BeforeEach
 	void setUp() {
@@ -112,6 +114,16 @@ class TransactionServiceTest {
 		Double sumTransactionAmount = transactionService.sum(1L);
 
 		assertThat(sumTransactionAmount).isEqualTo(1.5);
+	}
+
+	@Test
+	void testSum_TransactionWithChildren(){
+		transactionService.createTransaction(parentCarTransaction1);
+		transactionService.createTransaction(carTransaction2);
+
+		Double sumTransactionAmount = transactionService.sum(1L);
+
+		assertThat(sumTransactionAmount).isEqualTo(5.0);
 	}
 
 }

@@ -30,7 +30,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public Double sum(Long transactionId) {
-        Optional<Transaction> transaction = transactionRepository.findById(transactionId);
-        return transaction.map(Transaction::getAmount).orElse(0.0);
+        Optional<Transaction> parentTransaction = transactionRepository.findById(transactionId);
+        if(parentTransaction.isEmpty()) return 0.0;
+
+        Double parentAmount = parentTransaction.get().getAmount();
+        Double childrenSum = transactionRepository.findByParentId(transactionId)
+                .stream().mapToDouble(Transaction::getAmount).sum();
+        return parentAmount + childrenSum;
     }
 }

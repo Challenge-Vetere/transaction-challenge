@@ -9,4 +9,5 @@ public interface TransactionRepository {
     Optional<Transaction> findById(Long id);
     void create(Transaction transaction);
     List<Transaction> findByType(String type);
+    List<Transaction> findByParentId(Long parentId);
 }
