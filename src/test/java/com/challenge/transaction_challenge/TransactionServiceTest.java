@@ -17,7 +17,7 @@ class TransactionServiceTest {
 
 	private TransactionRepository repository;
 	private TransactionService transactionService;
-	private Transaction parentCarTransaction1, carTransaction2,
+	private Transaction parentCarTransaction1, carTransaction2, carTransaction3,
 			shoppingTransaction,
 			foodTransaction;
 
@@ -27,6 +27,7 @@ class TransactionServiceTest {
 		transactionService = new TransactionServiceImpl(repository);
 		parentCarTransaction1 = new Transaction(1L, "cars", 1.5, null);
 		carTransaction2 = new Transaction(2L, "cars", 3.5, 1L);
+		carTransaction3 = new Transaction(3L, "cars", 5.0, 2L);
 		shoppingTransaction = new Transaction(10L, "shopping", 5.8, null);
 		foodTransaction = new Transaction(20L, "food", 10.2, null);
 	}
@@ -124,6 +125,17 @@ class TransactionServiceTest {
 		Double sumTransactionAmount = transactionService.sum(1L);
 
 		assertThat(sumTransactionAmount).isEqualTo(5.0);
+	}
+
+	@Test
+	void testSum_TransactionWithGrandchildren(){
+		transactionService.createTransaction(parentCarTransaction1);
+		transactionService.createTransaction(carTransaction2);
+		transactionService.createTransaction(carTransaction3);
+
+		Double sumTransactionAmount = transactionService.sum(1L);
+
+		assertThat(sumTransactionAmount).isEqualTo(10.0);
 	}
 
 }

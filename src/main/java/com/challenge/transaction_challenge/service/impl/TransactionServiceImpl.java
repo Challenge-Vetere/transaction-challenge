@@ -35,7 +35,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         Double parentAmount = parentTransaction.get().getAmount();
         Double childrenSum = transactionRepository.findByParentId(transactionId)
-                .stream().mapToDouble(Transaction::getAmount).sum();
+                .stream().mapToDouble(childTx -> sum(childTx.getTransactionId()))
+                .sum();
         return parentAmount + childrenSum;
     }
 }
